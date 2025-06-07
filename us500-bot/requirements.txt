@@ -1,5 +1,0 @@
-yfinance
-pandas
-ta
-requests
-python-telegram-bot==13.15
