@@ -2,9 +2,9 @@ import yfinance as yf
 import pandas as pd
 import time
 import requests
-from ta.trend import TEMAIndicator
+from ta.trend import EMAIndicator
 from ta.momentum import RSIIndicator
-from ta.volatility import BollingerBands
+from ta.volatility import BollingerBands                                            
 
 # Configuration Telegram
 BOT_TOKEN = "7791134031:AAGnmuP1tETKSq4TI4DcZwQTuiVE_0DrZv0"
@@ -26,7 +26,7 @@ def fetch_data():
     return data
 
 def apply_indicators(df):
-    df["TEMA50"] = TEMAIndicator(df["Close"], window=50).tema()
+    df["EMA50"] = EMAIndicator(df["Close"], window=50).ema_indicator()
     df["RSI14"] = RSIIndicator(df["Close"], window=14).rsi()
     bb = BollingerBands(close=df["Close"], window=20, window_dev=2)
     df["bb_upper"] = bb.bollinger_hband()
@@ -43,14 +43,14 @@ def check_signal(df):
         return
 
     buy = (
-        latest["Close"] > latest["TEMA50"] > prev["TEMA50"] and
+        latest["Close"] > latest["EMA50"] > prev["EMA50"] and
         latest["RSI14"] > 55 and
         latest["Close"] > latest["bb_upper"] and
         latest["Volume"] > latest["Volume_MA20"]
     )
 
     sell = (
-        latest["Close"] < latest["TEMA50"] < prev["TEMA50"] and
+        latest["Close"] < latest["EMA50"] < prev["EMA50"] and
         latest["RSI14"] < 45 and
         latest["Close"] < latest["bb_lower"] and
         latest["Volume"] > latest["Volume_MA20"]
@@ -66,7 +66,7 @@ def check_signal(df):
             f"{signal_type}\n"
             f"🕒 Heure : {time_str}\n"
             f"💰 Prix : {price}\n"
-            f"📊 RSI: {rsi_val} | Volume > MA20 | Bollinger cassé | TEMA confirmée"
+            f"📊 RSI: {rsi_val} | Volume > MA20 | Bollinger cassé | EMA confirmée"
         )
         send_telegram_message(message)
         sent_today += 1
